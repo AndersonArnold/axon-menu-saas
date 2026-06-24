@@ -801,7 +801,7 @@ function closeCheckout() {
   }, 350);
 }
 
-function renderCheckoutStep() {
+async function renderCheckoutStep() {
   const step = checkoutState.step;
   let orderTypes = appConfig.orderTypes;
   
@@ -938,10 +938,16 @@ function renderCheckoutStep() {
       `;
     } else if (checkoutState.orderType === 'dineIn') {
       const tables = appConfig.tables?.layout || [];
+      const orders = await store.getTodaysOrders();
+      const tablesWithStatus = tables.map(t => {
+        const activeOrder = orders.find(o => String(o.tableId) === String(t.id) && (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready' || o.status === 'delivered'));
+        return { ...t, status: activeOrder ? 'occupied' : 'available' };
+      });
+
       formFields = `
         <h3 class="checkout-step-title">Selecione sua Mesa (Opcional)</h3>
         <div class="table-map">
-          ${tables.map(t => `
+          ${tablesWithStatus.map(t => `
             <button
               class="table-spot ${t.status !== 'available' ? 'occupied' : ''} ${checkoutState.tableId === t.id ? 'selected' : ''} table-${t.shape}"
               data-table-id="${t.id}"
