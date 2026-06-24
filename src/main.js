@@ -939,7 +939,7 @@ function renderCheckoutStep() {
     } else if (checkoutState.orderType === 'dineIn') {
       const tables = appConfig.tables?.layout || [];
       formFields = `
-        <h3 class="checkout-step-title">Selecione sua Mesa</h3>
+        <h3 class="checkout-step-title">Selecione sua Mesa (Opcional)</h3>
         <div class="table-map">
           ${tables.map(t => `
             <button
@@ -1250,7 +1250,7 @@ function validateCheckoutStep() {
       return true;
 
     } else if (checkoutState.orderType === 'dineIn') {
-      if (!checkoutState.tableId) { showToast('Selecione uma mesa', 'warning'); return false; }
+      // Mesa é opcional, então não barramos o usuário
       return true;
     }
   }
