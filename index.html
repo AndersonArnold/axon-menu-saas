@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cardápio Digital</title>
+  <meta name="description" content="Cardápio digital - Faça seu pedido online!">
+  <meta name="theme-color" content="#0F0F1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23FF6B35'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Inter,sans-serif' font-weight='700' font-size='18' fill='white'%3EA%3C/text%3E%3C/svg%3E">
+
+  <style>
+    /* Critical loading screen styles inlined for instant render */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0F0F1A;
+      color: #EAEAEA;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0F0F1A;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+    }
+
+    #loading-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loading-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+
+    .loading-logo svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.4));
+    }
+
+    .loading-brand {
+      font-size: 28px;
+      font-weight: 700;
+      color: #EAEAEA;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .loading-brand span {
+      color: #FF6B35;
+    }
+
+    .loading-tagline {
+      font-size: 14px;
+      color: #8888AA;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+
+    .loading-spinner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 107, 53, 0.15);
+    }
+
+    .loading-spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #FF6B35;
+      animation: spinnerRotate 0.8s linear infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes spinnerRotate {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.2); }
+      50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.5); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== Loading Screen ====== -->
+  <div id="loading-screen" role="status" aria-label="Carregando cardápio">
+    <div class="loading-logo">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B35"/>
+            <stop offset="100%" style="stop-color:#FFD166"/>
+          </linearGradient>
+        </defs>
+        <rect width="80" height="80" rx="20" fill="url(#logoGrad)"/>
+        <text x="40" y="54" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="42" fill="white">A</text>
+      </svg>
+    </div>
+    <div class="loading-brand"><span>Axon</span> Menu</div>
+    <p class="loading-tagline">Preparando seu cardápio...</p>
+    <div class="loading-spinner" aria-hidden="true"></div>
+  </div>
+
+
+  <!-- ====== Closed Overlay (when store is closed) ====== -->
+  <div id="closed-overlay" class="closed-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Estabelecimento fechado">
+    <div class="closed-overlay-backdrop"></div>
+    <div class="closed-content">
+      <div class="closed-icon-wrap">
+        <span class="material-icons-round closed-icon">schedule</span>
+      </div>
+      <h2 class="closed-title">Estamos Fechados</h2>
+      <p id="closed-message" class="closed-message">No momento não estamos recebendo pedidos.</p>
+      <div id="closed-schedule" class="closed-schedule"></div>
+      <p class="closed-note">
+        <span class="material-icons-round" aria-hidden="true">notifications_active</span>
+        Fique de olho, voltamos em breve!
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ====== Header with Banner ====== -->
+  <header id="menu-header" class="menu-header" role="banner">
+    <div class="banner-wrapper">
+      <div id="store-banner" class="store-banner" role="img" aria-label="Banner do estabelecimento"></div>
+      <div class="banner-overlay" aria-hidden="true"></div>
+      <div class="store-info">
+        <div id="store-logo" class="store-logo" role="img" aria-label="Logo do estabelecimento"></div>
+        <h1 id="store-name" class="store-name"></h1>
+        <p id="store-description" class="store-description"></p>
+        <div id="store-status" class="store-status" aria-live="polite">
+          <span class="status-dot"></span>
+          <span class="status-text"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ====== Store Info Bar ====== -->
+  <div id="info-bar" class="store-info-bar" role="contentinfo" aria-label="Informações do estabelecimento">
+    <a id="store-address" class="info-item" href="#" target="_blank" rel="noopener noreferrer" aria-label="Ver endereço no mapa">
+      <span class="material-icons-round" aria-hidden="true">location_on</span>
+      <span class="info-text"></span>
+    </a>
+    <a id="store-phone" class="info-item" href="tel:" aria-label="Ligar para o estabelecimento">
+      <span class="material-icons-round" aria-hidden="true">phone</span>
+      <span class="info-text"></span>
+    </a>
+    <div id="store-hours" class="info-item" aria-label="Horário de funcionamento">
+      <span class="material-icons-round" aria-hidden="true">schedule</span>
+      <span class="info-text"></span>
+    </div>
+  </div>
+
+
+  <!-- ====== Search Bar ====== -->
+  <div class="search-container" role="search" aria-label="Buscar no cardápio">
+    <div class="search-bar">
+      <span class="material-icons-round search-icon" aria-hidden="true">search</span>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Buscar no cardápio..."
+        autocomplete="off"
+        aria-label="Buscar itens do cardápio"
+      >
+      <button id="search-clear" class="search-clear" style="display:none" aria-label="Limpar busca" type="button">
+        <span class="material-icons-round" aria-hidden="true">close</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ====== Category Navigation ====== -->
+  <nav id="category-nav" class="category-nav" role="tablist" aria-label="Categorias do cardápio">
+    <div class="category-scroll" id="category-scroll"></div>
+  </nav>
+
+
+  <!-- ====== Menu Items Grid ====== -->
+  <main id="menu-content" class="container" role="main" aria-label="Itens do cardápio">
+    <div id="menu-grid" class="menu-grid"></div>
+    <div id="empty-menu" class="empty-state" style="display:none" role="status" aria-live="polite">
+      <span class="material-icons-round empty-icon" aria-hidden="true">search_off</span>
+      <p class="empty-title">Nenhum item encontrado</p>
+      <p class="empty-subtitle">Tente buscar por outro termo</p>
+    </div>
+  </main>
+
+
+  <!-- ====== Cart FAB ====== -->
+  <button id="cart-fab" class="cart-fab" style="display:none" aria-label="Ver carrinho de pedidos" type="button">
+    <span class="material-icons-round" aria-hidden="true">shopping_cart</span>
+    <span id="cart-count" class="cart-count" aria-live="polite" aria-label="Itens no carrinho">0</span>
+  </button>
+
+
+  <!-- ====== Cart Drawer ====== -->
+  <div id="cart-drawer-overlay" class="cart-drawer-overlay" style="display:none" aria-hidden="true"></div>
+  <aside id="cart-drawer" class="cart-drawer" style="display:none" role="dialog" aria-modal="true" aria-label="Carrinho de pedidos">
+    <div class="cart-drawer-header">
+      <h2>
+        <span class="material-icons-round" aria-hidden="true">shopping_cart</span>
+        Seu Pedido
+      </h2>
+      <button id="cart-close" class="btn-icon" aria-label="Fechar carrinho" type="button">
+        <span class="material-icons-round" aria-hidden="true">close</span>
+      </button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-empty" class="cart-empty" style="display:none">
+      <span class="material-icons-round" aria-hidden="true">remove_shopping_cart</span>
+      <p>Seu carrinho está vazio</p>
+      <p class="cart-empty-hint">Adicione itens do cardápio</p>
+    </div>
+    <div id="cart-footer" class="cart-footer" style="display:none">
+      <div class="cart-observation" style="margin-bottom: 12px;">
+        <textarea id="cart-observation" class="form-input form-textarea" rows="2" placeholder="Alguma observação para o pedido? (opcional)"></textarea>
+      </div>
+      <div class="cart-total">
+        <span>Subtotal</span>
+        <span id="cart-subtotal" class="cart-subtotal-value">R$ 0,00</span>
+      </div>
+      <button id="checkout-btn" class="btn btn-primary btn-lg" type="button">
+        <span class="material-icons-round" aria-hidden="true">shopping_cart_checkout</span>
+        Finalizar Pedido
+      </button>
+      <button id="clear-cart-btn" class="btn btn-ghost" type="button">
+        <span class="material-icons-round" aria-hidden="true">delete_outline</span>
+        Limpar carrinho
+      </button>
+    </div>
+  </aside>
+
+
+  <!-- ====== Item Detail Modal ====== -->
+  <div id="item-modal-overlay" class="modal-overlay" style="display:none" aria-hidden="true">
+    <div id="item-modal" class="item-detail-modal modal" style="display:none" role="dialog" aria-modal="true" aria-label="Detalhes do item"></div>
+  </div>
+
+
+  <!-- ====== Checkout Modal ====== -->
+  <div id="checkout-overlay" class="modal-overlay" style="display:none" aria-hidden="true">
+    <div id="checkout-modal" class="checkout-modal modal" style="display:none" role="dialog" aria-modal="true" aria-label="Finalizar pedido"></div>
+  </div>
+
+
+  <!-- ====== Order Confirmed Modal ====== -->
+  <div id="order-confirmed-overlay" class="modal-overlay" style="display:none" aria-hidden="true">
+    <div id="order-confirmed-modal" class="order-confirmed modal" style="display:none" role="dialog" aria-modal="true" aria-label="Pedido confirmado"></div>
+  </div>
+
+
+  <!-- ====== Toast Container ====== -->
+  <div id="toast-container" class="toast-container" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

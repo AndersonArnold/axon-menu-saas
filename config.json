@@ -1,0 +1,220 @@
+{
+  "store": {
+    "name": "Axon Burger House",
+    "logo": "",
+    "banner": "",
+    "description": "Os melhores lanches da cidade!",
+    "address": "Rua Exemplo, 123 - Centro",
+    "googleMapsLink": "https://maps.google.com/?q=-23.5505,-46.6333",
+    "phone": "(11) 99999-9999",
+    "whatsapp": "(11) 99999-9999",
+    "socialMedia": {
+      "instagram": "@axonburger",
+      "facebook": ""
+    }
+  },
+  "schedule": {
+    "monday": { "open": "08:00", "close": "22:00", "enabled": true },
+    "tuesday": { "open": "08:00", "close": "22:00", "enabled": true },
+    "wednesday": { "open": "08:00", "close": "22:00", "enabled": true },
+    "thursday": { "open": "08:00", "close": "22:00", "enabled": true },
+    "friday": { "open": "08:00", "close": "23:00", "enabled": true },
+    "saturday": { "open": "10:00", "close": "23:00", "enabled": true },
+    "sunday": { "open": "10:00", "close": "20:00", "enabled": false }
+  },
+  "orderTypes": {
+    "dineIn": { "enabled": true, "label": "Consumir no Local" },
+    "takeaway": { "enabled": true, "label": "Retirada na Loja" },
+    "delivery": { "enabled": true, "label": "Delivery" }
+  },
+  "delivery": {
+    "zones": [
+      { "id": "zone1", "name": "Até 3km", "fee": 5.00 },
+      { "id": "zone2", "name": "3km a 6km", "fee": 8.00 },
+      { "id": "zone3", "name": "Acima de 6km", "fee": 12.00 }
+    ],
+    "minimumOrder": 15.00
+  },
+  "tables": {
+    "layout": [
+      { "id": 1, "label": "01", "x": 5, "y": 5, "shape": "square", "seats": 4, "status": "available" },
+      { "id": 2, "label": "02", "x": 25, "y": 5, "shape": "square", "seats": 4, "status": "available" },
+      { "id": 3, "label": "03", "x": 45, "y": 5, "shape": "square", "seats": 4, "status": "available" },
+      { "id": 4, "label": "04", "x": 65, "y": 5, "shape": "round", "seats": 2, "status": "available" },
+      { "id": 5, "label": "05", "x": 85, "y": 5, "shape": "round", "seats": 2, "status": "available" },
+      { "id": 6, "label": "06", "x": 5, "y": 35, "shape": "square", "seats": 6, "status": "available" },
+      { "id": 7, "label": "07", "x": 25, "y": 35, "shape": "square", "seats": 4, "status": "available" },
+      { "id": 8, "label": "08", "x": 45, "y": 35, "shape": "round", "seats": 2, "status": "available" },
+      { "id": 9, "label": "09", "x": 65, "y": 35, "shape": "square", "seats": 4, "status": "available" },
+      { "id": 10, "label": "10", "x": 85, "y": 35, "shape": "square", "seats": 4, "status": "available" }
+    ]
+  },
+  "payment": {
+    "methods": [
+      { "id": "pix", "label": "PIX", "icon": "qr_code", "enabled": true },
+      { "id": "credit", "label": "Cartão de Crédito", "icon": "credit_card", "enabled": true },
+      { "id": "debit", "label": "Cartão de Débito", "icon": "credit_card", "enabled": true },
+      { "id": "cash", "label": "Dinheiro", "icon": "payments", "enabled": true }
+    ]
+  },
+  "theme": {
+    "primaryColor": "#FF6B35",
+    "secondaryColor": "#0F0F1A",
+    "accentColor": "#FFD166",
+    "surfaceColor": "#1A1A2E",
+    "surfaceLightColor": "#252542",
+    "textColor": "#EAEAEA",
+    "textMutedColor": "#8888AA",
+    "successColor": "#06D6A0",
+    "warningColor": "#FFD166",
+    "dangerColor": "#EF476F",
+    "infoColor": "#118AB2",
+    "fontFamily": "Inter",
+    "borderRadius": "12px"
+  },
+  "categories": [
+    {
+      "id": "cat1",
+      "name": "🍔 Lanches",
+      "icon": "lunch_dining",
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "cat2",
+      "name": "🍟 Porções",
+      "icon": "restaurant",
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "cat3",
+      "name": "🥤 Bebidas",
+      "icon": "local_bar",
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "cat4",
+      "name": "🍰 Sobremesas",
+      "icon": "cake",
+      "order": 4,
+      "active": true
+    }
+  ],
+  "menuItems": [
+    {
+      "id": "item1",
+      "categoryId": "cat1",
+      "name": "X-Burger Clássico",
+      "description": "Pão brioche, hambúrguer 180g, queijo cheddar, alface, tomate e molho especial",
+      "price": 22.90,
+      "image": "",
+      "active": true,
+      "order": 1,
+      "extras": [
+        { "id": "ext1", "name": "Bacon crocante", "price": 4.00 },
+        { "id": "ext2", "name": "Ovo frito", "price": 3.00 },
+        { "id": "ext3", "name": "Queijo extra", "price": 3.50 },
+        { "id": "ext4", "name": "Cebola caramelizada", "price": 2.50 }
+      ]
+    },
+    {
+      "id": "item2",
+      "categoryId": "cat1",
+      "name": "X-Bacon Duplo",
+      "description": "Pão brioche, 2 hambúrgueres 180g, queijo cheddar duplo, bacon crocante e molho barbecue",
+      "price": 34.90,
+      "image": "",
+      "active": true,
+      "order": 2,
+      "extras": [
+        { "id": "ext1", "name": "Bacon extra", "price": 4.00 },
+        { "id": "ext5", "name": "Hambúrguer extra", "price": 8.00 },
+        { "id": "ext3", "name": "Queijo extra", "price": 3.50 }
+      ]
+    },
+    {
+      "id": "item3",
+      "categoryId": "cat1",
+      "name": "Frango Crocante",
+      "description": "Pão australiano, filé de frango empanado crocante, queijo prato, salada e maionese temperada",
+      "price": 26.90,
+      "image": "",
+      "active": true,
+      "order": 3,
+      "extras": [
+        { "id": "ext1", "name": "Bacon crocante", "price": 4.00 },
+        { "id": "ext3", "name": "Queijo extra", "price": 3.50 }
+      ]
+    },
+    {
+      "id": "item4",
+      "categoryId": "cat2",
+      "name": "Batata Frita P",
+      "description": "Porção individual de batata frita crocante com sal e orégano",
+      "price": 14.90,
+      "image": "",
+      "active": true,
+      "order": 1,
+      "extras": [
+        { "id": "ext6", "name": "Cheddar e bacon", "price": 6.00 }
+      ]
+    },
+    {
+      "id": "item5",
+      "categoryId": "cat2",
+      "name": "Onion Rings",
+      "description": "Anéis de cebola empanados e fritos, acompanha molho especial",
+      "price": 18.90,
+      "image": "",
+      "active": true,
+      "order": 2,
+      "extras": []
+    },
+    {
+      "id": "item6",
+      "categoryId": "cat3",
+      "name": "Coca-Cola 350ml",
+      "description": "Coca-Cola lata gelada",
+      "price": 6.90,
+      "image": "",
+      "active": true,
+      "order": 1,
+      "extras": []
+    },
+    {
+      "id": "item7",
+      "categoryId": "cat3",
+      "name": "Suco Natural 500ml",
+      "description": "Suco natural da fruta. Sabores: Laranja, Limão, Maracujá, Abacaxi",
+      "price": 12.90,
+      "image": "",
+      "active": true,
+      "order": 2,
+      "extras": []
+    },
+    {
+      "id": "item8",
+      "categoryId": "cat4",
+      "name": "Brownie com Sorvete",
+      "description": "Brownie de chocolate quente com bola de sorvete de creme e calda de chocolate",
+      "price": 19.90,
+      "image": "",
+      "active": true,
+      "order": 1,
+      "extras": [
+        { "id": "ext7", "name": "Bola de sorvete extra", "price": 5.00 },
+        { "id": "ext8", "name": "Calda de caramelo", "price": 3.00 }
+      ]
+    }
+  ],
+  "admin": {
+    "password": "admin123"
+  },
+  "printer": {
+    "paperWidth": 80,
+    "storeName": true,
+    "storeAddress": false
+  }
+}

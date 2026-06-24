@@ -1,0 +1,735 @@
+/* ============================================================
+   AXON MENU BASE — Table Map Styles
+   Interactive Restaurant Floor Plan
+   ============================================================ */
+
+/* ============================================================
+   TABLE MAP CONTAINER
+   ============================================================ */
+
+.table-map-container {
+  position: relative;
+  width: 100%;
+  min-height: 500px;
+  background: var(--secondary);
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--surface-light) 1px, transparent 0);
+  background-size: 32px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   TABLE MAP (Pannable Area)
+   ============================================================ */
+
+.table-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  overflow: auto;
+  padding: var(--space-xl);
+  cursor: default;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-map.panning {
+  cursor: grab;
+}
+
+.table-map.panning:active {
+  cursor: grabbing;
+}
+
+.table-map-inner {
+  position: relative;
+  min-width: 100%;
+  min-height: 400px;
+  transition: transform 0.2s ease;
+}
+
+
+/* ============================================================
+   TABLE NODE (Individual Table)
+   ============================================================ */
+
+.table-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition),
+    border-color var(--transition);
+  z-index: 1;
+}
+
+.table-node:hover {
+  transform: scale(1.08);
+  z-index: 10;
+}
+
+.table-node:active {
+  transform: scale(1.02);
+}
+
+/* Square shape */
+.table-node.square {
+  width: 80px;
+  height: 80px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 2px solid var(--glass-border-hover);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Round shape */
+.table-node.round {
+  width: 80px;
+  height: 80px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 2px solid var(--glass-border-hover);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- STATUS STATES --- */
+
+/* Available — Green glow */
+.table-node.available {
+  border-color: var(--success);
+  box-shadow:
+    0 0 12px rgba(6, 214, 160, 0.2),
+    var(--shadow-sm);
+}
+
+.table-node.available:hover {
+  box-shadow:
+    0 0 24px rgba(6, 214, 160, 0.35),
+    0 0 0 3px rgba(6, 214, 160, 0.15);
+}
+
+/* Occupied — Red glow with subtle pulse */
+.table-node.occupied {
+  border-color: var(--danger);
+  box-shadow:
+    0 0 12px rgba(239, 71, 111, 0.25),
+    var(--shadow-sm);
+  animation: tablePulseOccupied 3s ease-in-out infinite;
+}
+
+.table-node.occupied:hover {
+  box-shadow:
+    0 0 24px rgba(239, 71, 111, 0.4),
+    0 0 0 3px rgba(239, 71, 111, 0.15);
+  animation: none;
+}
+
+/* Ready — Yellow/Amber glow */
+.table-node.ready {
+  border-color: var(--warning);
+  box-shadow:
+    0 0 12px rgba(255, 209, 102, 0.25),
+    var(--shadow-sm);
+  animation: tablePulseReady 2s ease-in-out infinite;
+}
+
+.table-node.ready:hover {
+  box-shadow:
+    0 0 24px rgba(255, 209, 102, 0.4),
+    0 0 0 3px rgba(255, 209, 102, 0.15);
+  animation: none;
+}
+
+/* Payment — Blue glow */
+.table-node.payment {
+  border-color: var(--info);
+  box-shadow:
+    0 0 12px rgba(17, 138, 178, 0.25),
+    var(--shadow-sm);
+}
+
+.table-node.payment:hover {
+  box-shadow:
+    0 0 24px rgba(17, 138, 178, 0.4),
+    0 0 0 3px rgba(17, 138, 178, 0.15);
+}
+
+
+/* ============================================================
+   TABLE LABEL (Number)
+   ============================================================ */
+
+.table-label {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  z-index: 1;
+}
+
+.table-node.available .table-label {
+  color: var(--success);
+}
+
+.table-node.occupied .table-label {
+  color: var(--danger);
+}
+
+.table-node.ready .table-label {
+  color: var(--warning);
+}
+
+.table-node.payment .table-label {
+  color: var(--info);
+}
+
+
+/* ============================================================
+   TABLE SEATS (Indicator)
+   ============================================================ */
+
+.table-seats {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.table-seat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  opacity: 0.6;
+}
+
+.table-node.available .table-seat-dot {
+  background: var(--success);
+  opacity: 0.5;
+}
+
+.table-node.occupied .table-seat-dot {
+  background: var(--danger);
+  opacity: 0.5;
+}
+
+
+/* ============================================================
+   TABLE TIMER
+   ============================================================ */
+
+.table-timer {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-node.occupied .table-timer {
+  color: var(--danger);
+  border-color: rgba(239, 71, 111, 0.2);
+}
+
+.table-node.ready .table-timer {
+  color: var(--warning);
+  border-color: rgba(255, 209, 102, 0.2);
+}
+
+
+/* ============================================================
+   TABLE TOOLTIP
+   ============================================================ */
+
+.table-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+  pointer-events: none;
+}
+
+.table-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--surface);
+}
+
+.table-node:hover .table-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.table-tooltip-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.table-tooltip-info {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.table-tooltip-status {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.table-tooltip-status.available { color: var(--success); }
+.table-tooltip-status.occupied { color: var(--danger); }
+.table-tooltip-status.ready { color: var(--warning); }
+.table-tooltip-status.payment { color: var(--info); }
+
+
+/* ============================================================
+   TABLE MAP LEGEND
+   ============================================================ */
+
+.table-map-legend {
+  position: absolute;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  box-shadow: var(--shadow);
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.table-map-legend.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.table-map-legend-title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid;
+}
+
+.legend-dot.available {
+  border-color: var(--success);
+  box-shadow: 0 0 6px rgba(6, 214, 160, 0.4);
+}
+
+.legend-dot.occupied {
+  border-color: var(--danger);
+  box-shadow: 0 0 6px rgba(239, 71, 111, 0.4);
+}
+
+.legend-dot.ready {
+  border-color: var(--warning);
+  box-shadow: 0 0 6px rgba(255, 209, 102, 0.4);
+}
+
+.legend-dot.payment {
+  border-color: var(--info);
+  box-shadow: 0 0 6px rgba(17, 138, 178, 0.4);
+}
+
+
+/* ============================================================
+   TABLE MAP CONTROLS (Zoom, Legend Toggle)
+   ============================================================ */
+
+.table-map-controls {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+}
+
+.map-control-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-control-btn:hover {
+  background: var(--surface-light);
+  color: var(--text);
+  border-color: var(--glass-border-hover);
+}
+
+.map-control-btn:active {
+  background: var(--surface-hover);
+}
+
+.map-control-btn.active {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  border-color: rgba(255, 107, 53, 0.2);
+}
+
+.map-controls-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--glass-border);
+  margin: 2px 0;
+}
+
+
+/* ============================================================
+   TABLE ORDER MODAL
+   ============================================================ */
+
+.table-order-modal .modal {
+  max-width: 480px;
+}
+
+.table-order-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.table-order-number {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.table-order-number.available {
+  background: rgba(6, 214, 160, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(6, 214, 160, 0.2);
+}
+
+.table-order-number.occupied {
+  background: rgba(239, 71, 111, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(239, 71, 111, 0.2);
+}
+
+.table-order-info h3 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.table-order-info p {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.table-order-content {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.table-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.table-order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.table-order-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+
+/* ============================================================
+   ADMIN MODE — Draggable Tables
+   ============================================================ */
+
+.table-node.draggable {
+  cursor: move;
+}
+
+.table-node.draggable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow);
+}
+
+.table-drag-handle {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background: var(--primary);
+  border: 2px solid var(--secondary);
+  border-radius: 50%;
+  cursor: move;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.table-node.draggable:hover .table-drag-handle {
+  opacity: 1;
+}
+
+.table-resize-handle {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 2px solid var(--secondary);
+  border-radius: 3px;
+  cursor: nwse-resize;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.table-node.draggable:hover .table-resize-handle {
+  opacity: 1;
+}
+
+.table-node.dragging {
+  opacity: 0.7;
+  z-index: 100;
+  box-shadow: 0 0 0 2px var(--primary), 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* Grid snap overlay in edit mode */
+.table-map.edit-mode {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255, 107, 53, 0.15) 1px, transparent 0);
+  background-size: 32px 32px;
+}
+
+.table-map.edit-mode .table-node {
+  cursor: move;
+}
+
+.table-map-edit-toolbar {
+  position: absolute;
+  top: var(--space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+
+
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
+
+@keyframes tablePulseOccupied {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(239, 71, 111, 0.25),
+      inset 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(239, 71, 111, 0.35),
+      inset 0 0 8px rgba(239, 71, 111, 0.05);
+  }
+}
+
+@keyframes tablePulseReady {
+  0%, 100% {
+    box-shadow:
+      0 0 12px rgba(255, 209, 102, 0.25),
+      inset 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow:
+      0 0 22px rgba(255, 209, 102, 0.4),
+      inset 0 0 8px rgba(255, 209, 102, 0.05);
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE: Table Map
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  .table-map-container {
+    min-height: 400px;
+  }
+
+  .table-map {
+    min-height: 400px;
+  }
+
+  .table-node.square,
+  .table-node.round {
+    width: 64px;
+    height: 64px;
+  }
+
+  .table-label {
+    font-size: var(--text-base);
+  }
+
+  .table-seat-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .table-map-legend {
+    padding: var(--space-sm);
+    font-size: var(--text-xs);
+  }
+}
+
+@media (max-width: 767px) {
+  .table-map-container {
+    min-height: 350px;
+    border-radius: var(--radius-sm);
+  }
+
+  .table-map {
+    min-height: 350px;
+    padding: var(--space-md);
+  }
+
+  .table-node.square,
+  .table-node.round {
+    width: 56px;
+    height: 56px;
+  }
+
+  .table-label {
+    font-size: var(--text-sm);
+  }
+
+  .table-seats {
+    display: none;
+  }
+
+  .table-timer {
+    font-size: 8px;
+    padding: 1px 6px;
+    bottom: -8px;
+  }
+
+  .table-map-legend {
+    bottom: var(--space-sm);
+    left: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    gap: var(--space-xs);
+  }
+
+  .table-map-controls {
+    top: var(--space-sm);
+    right: var(--space-sm);
+  }
+
+  .map-control-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .table-tooltip {
+    display: none;
+  }
+}

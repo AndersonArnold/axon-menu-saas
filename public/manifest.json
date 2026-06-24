@@ -1,0 +1,17 @@
+{
+  "name": "Axon Menu",
+  "short_name": "Axon",
+  "description": "Cardápio Digital Premium",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F0F1A",
+  "theme_color": "#FF6B35",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%230F0F1A'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='%23FF6B35' font-family='Arial'%3E🍔%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

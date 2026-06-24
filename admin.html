@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F0F1A" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin - Cardápio Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/css/global.css" />
+  <link rel="stylesheet" href="/src/css/admin.css" />
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="admin-login" class="admin-login">
+    <div class="login-card glass-card">
+      <div class="login-logo">
+        <span class="material-icons-round" style="font-size:64px;color:var(--primary)">restaurant_menu</span>
+        <h1>Axon Menu</h1>
+        <p>Painel Administrativo</p>
+      </div>
+      <div class="input-group">
+        <label for="admin-password">Senha de Acesso</label>
+        <input type="password" id="admin-password" class="form-input" placeholder="Digite a senha..." autocomplete="current-password" />
+      </div>
+      <button id="login-btn" class="btn btn-primary btn-lg">
+        <span class="material-icons-round">login</span>
+        Entrar
+      </button>
+      <p id="login-error" class="error-text" style="display:none">
+        <span class="material-icons-round" style="font-size:16px;vertical-align:middle">error</span>
+        Senha incorreta
+      </p>
+    </div>
+  </div>
+
+  <!-- Admin Layout -->
+  <div id="admin-app" class="admin-layout" style="display:none">
+
+    <!-- Sidebar -->
+    <aside id="admin-sidebar" class="admin-sidebar">
+      <div class="sidebar-header">
+        <span class="material-icons-round">restaurant_menu</span>
+        <span class="sidebar-title">Axon Menu</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" data-page="dashboard" class="nav-item active">
+          <span class="material-icons-round">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" data-page="menu" class="nav-item">
+          <span class="material-icons-round">restaurant_menu</span>
+          <span>Cardápio</span>
+        </a>
+        <a href="#" data-page="orders" class="nav-item">
+          <span class="material-icons-round">receipt_long</span>
+          <span>Pedidos</span>
+          <span id="pending-orders-badge" class="nav-badge" style="display:none">0</span>
+        </a>
+        <a href="#" data-page="deliveries" class="nav-item">
+          <span class="material-icons-round">two_wheeler</span>
+          <span>Entregas</span>
+        </a>
+        <a href="#" data-page="tables" class="nav-item">
+          <span class="material-icons-round">table_restaurant</span>
+          <span>Mesas</span>
+        </a>
+        <a href="#" data-page="cashier" class="nav-item">
+          <span class="material-icons-round">point_of_sale</span>
+          <span>Caixa</span>
+        </a>
+        <a href="#" data-page="settings" class="nav-item">
+          <span class="material-icons-round">settings</span>
+          <span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="nav-item">
+          <span class="material-icons-round">logout</span>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav id="mobile-nav" class="mobile-bottom-nav">
+      <a href="#" data-page="dashboard" class="mobile-nav-item active">
+        <span class="material-icons-round">dashboard</span>
+        <span>Início</span>
+      </a>
+      <a href="#" data-page="menu" class="mobile-nav-item">
+        <span class="material-icons-round">restaurant_menu</span>
+        <span>Cardápio</span>
+      </a>
+      <a href="#" data-page="orders" class="mobile-nav-item">
+        <span class="material-icons-round">receipt_long</span>
+        <span>Pedidos</span>
+      </a>
+      <a href="#" data-page="tables" class="mobile-nav-item">
+        <span class="material-icons-round">table_restaurant</span>
+        <span>Mesas</span>
+      </a>
+      <a href="#" data-page="cashier" class="mobile-nav-item">
+        <span class="material-icons-round">point_of_sale</span>
+        <span>Caixa</span>
+      </a>
+      <a href="#" data-page="settings" class="mobile-nav-item">
+        <span class="material-icons-round">settings</span>
+        <span>Config</span>
+      </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <header class="admin-header">
+        <button id="menu-toggle" class="btn-icon sidebar-toggle">
+          <span class="material-icons-round">menu</span>
+        </button>
+        <h2 id="page-title">Dashboard</h2>
+        <div class="header-actions">
+          <span id="header-store-name" class="store-name-badge"></span>
+        </div>
+      </header>
+
+      <div id="page-content" class="page-content">
+        <!-- Pages rendered dynamically by admin.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Container -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-container" class="modal-container glass-card"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>
