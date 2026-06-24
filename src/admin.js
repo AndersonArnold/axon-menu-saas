@@ -2175,23 +2175,25 @@ async function renderSettingsPage(container) {
           <span class="material-icons-round section-toggle-icon">expand_more</span>
         </div>
         <div class="settings-section-body collapsed" id="payment-content">
-          <div class="payment-methods-list">
+          <div class="payment-methods-list" id="payment-methods-list">
             ${(payment.methods || []).map(method => `
-              <div class="payment-method-row">
-                <label class="toggle-label">
-                  <div class="payment-method-info">
-                    <span class="material-icons-round">${method.icon || 'payment'}</span>
-                    <span>${method.label}</span>
-                  </div>
-                  <label class="toggle-switch">
-                    <input type="checkbox" class="payment-toggle" data-id="${method.id}" ${method.enabled ? 'checked' : ''} />
-                    <span class="toggle-slider"></span>
-                  </label>
+              <div class="payment-method-row" data-id="${method.id}" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <input type="text" class="form-input payment-label" value="${method.label}" placeholder="Nome (ex: Pix)" />
+                <input type="text" class="form-input payment-icon" value="${method.icon || 'payment'}" placeholder="Ícone" style="width:100px;" />
+                <label class="toggle-switch" style="margin-left:auto;">
+                  <input type="checkbox" class="payment-toggle" data-id="${method.id}" ${method.enabled ? 'checked' : ''} />
+                  <span class="toggle-slider"></span>
                 </label>
+                <button class="btn-icon btn-sm btn-danger-icon remove-payment" style="margin-left:8px;" onclick="this.parentElement.remove()">
+                  <span class="material-icons-round">close</span>
+                </button>
               </div>
             `).join('')}
           </div>
-          <button class="btn btn-primary" id="save-payment">
+          <button class="btn btn-ghost btn-sm" id="add-payment-btn" style="margin-bottom:16px;">
+            <span class="material-icons-round">add</span> Adicionar Pagamento
+          </button>
+          <button class="btn btn-primary" id="save-payment" style="display:flex;">
             <span class="material-icons-round">save</span> Salvar Pagamento
           </button>
         </div>
@@ -2384,11 +2386,42 @@ async function renderSettingsPage(container) {
   };
 
   // === Save Payment ===
+  const addPaymentBtn = container.querySelector('#add-payment-btn');
+  if (addPaymentBtn) {
+    addPaymentBtn.onclick = () => {
+      const list = container.querySelector('#payment-methods-list');
+      const id = 'pay_' + Date.now().toString();
+      const row = document.createElement('div');
+      row.className = 'payment-method-row';
+      row.dataset.id = id;
+      row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
+      row.innerHTML = `
+        <input type="text" class="form-input payment-label" placeholder="Nome (ex: Pix)" value="" />
+        <input type="text" class="form-input payment-icon" placeholder="Ícone" value="payment" style="width:100px;" />
+        <label class="toggle-switch" style="margin-left:auto;">
+          <input type="checkbox" class="payment-toggle" data-id="${id}" checked />
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn-icon btn-sm btn-danger-icon remove-payment" style="margin-left:8px;" onclick="this.parentElement.remove()">
+          <span class="material-icons-round">close</span>
+        </button>
+      `;
+      list.appendChild(row);
+    };
+  }
+
   container.querySelector('#save-payment').onclick = async () => {
-    const methods = (payment.methods || []).map(m => {
-      const toggle = container.querySelector(`.payment-toggle[data-id="${m.id}"]`);
-      return { ...m, enabled: toggle ? toggle.checked : m.enabled };
+    const methods = [];
+    container.querySelectorAll('.payment-method-row').forEach(row => {
+      const id = row.dataset.id;
+      const label = row.querySelector('.payment-label').value.trim();
+      const icon = row.querySelector('.payment-icon').value.trim() || 'payment';
+      const enabled = row.querySelector('.payment-toggle').checked;
+      if (label) {
+        methods.push({ id, label, icon, enabled });
+      }
     });
+
     try {
       await configManager.updateConfig?.('payment', { methods });
       state.config.payment = { methods };
