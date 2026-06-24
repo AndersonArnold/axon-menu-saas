@@ -31,10 +31,10 @@ class TableMap {
   // Status Config
   // ---------------------------------------------------------------------------
   static STATUS = {
-    available: { label: 'Disponível', icon: 'check_circle', cssClass: 'status-available', color: 'var(--success, #06D6A0)' },
-    occupied:  { label: 'Ocupada',    icon: 'person',       cssClass: 'status-occupied',  color: 'var(--danger, #EF476F)' },
-    ready:     { label: 'Pronto',     icon: 'notifications_active', cssClass: 'status-ready', color: 'var(--warning, #FFD166)' },
-    payment:   { label: 'Pagamento',  icon: 'credit_card',  cssClass: 'status-payment',   color: 'var(--info, #118AB2)' }
+    available: { label: 'Disponível', icon: 'check_circle', cssClass: 'available', color: 'var(--success, #06D6A0)' },
+    occupied:  { label: 'Ocupada',    icon: 'person',       cssClass: 'occupied',  color: 'var(--danger, #EF476F)' },
+    ready:     { label: 'Pronto',     icon: 'notifications_active', cssClass: 'ready', color: 'var(--warning, #FFD166)' },
+    payment:   { label: 'Pagamento',  icon: 'credit_card',  cssClass: 'payment',   color: 'var(--info, #118AB2)' }
   };
 
   // ---------------------------------------------------------------------------

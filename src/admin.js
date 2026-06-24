@@ -1517,10 +1517,7 @@ async function renderTablesPage(container) {
 
   // Add table
   addBtn.onclick = () => {
-    const nextId = tablesWithStatus.length > 0 ? Math.max(...tablesWithStatus.map(t => typeof t.id === 'number' ? t.id : 0)) + 1 : 1;
     tableMap.addTable({
-      id: nextId,
-      label: String(nextId).padStart(2, '0'),
       x: 50,
       y: 50,
       shape: 'square',
