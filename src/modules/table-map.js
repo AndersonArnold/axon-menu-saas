@@ -320,9 +320,9 @@ class TableMap {
       let newX = this.dragState.origLeft + dxPercent;
       let newY = this.dragState.origTop + dyPercent;
 
-      // Snap to 5% grid
-      newX = Math.round(newX / 5) * 5;
-      newY = Math.round(newY / 5) * 5;
+      // Snap to 1% grid for smooth dragging
+      newX = Math.round(newX);
+      newY = Math.round(newY);
 
       // Clamp within bounds
       newX = Math.max(0, Math.min(90, newX));
@@ -364,9 +364,16 @@ class TableMap {
   // Add / Remove table
   // ---------------------------------------------------------------------------
   addTable(tableData) {
+    const nextId = this.tables.length > 0 ? Math.max(...this.tables.map(t => parseInt(t.id) || 0)) + 1 : 1;
+    const maxLabel = this.tables.reduce((max, t) => {
+      const num = parseInt(t.label);
+      return !isNaN(num) && num > max ? num : max;
+    }, 0);
+    const newLabelNum = maxLabel > 0 ? maxLabel + 1 : nextId;
+
     const newTable = {
-      id: tableData.id || (this.tables.length > 0 ? Math.max(...this.tables.map(t => typeof t.id === 'number' ? t.id : 0)) + 1 : 1),
-      label: tableData.label || String(this.tables.length + 1).padStart(2, '0'),
+      id: tableData.id || nextId,
+      label: tableData.label || String(newLabelNum).padStart(2, '0'),
       x: tableData.x || 50,
       y: tableData.y || 50,
       shape: tableData.shape || 'square',
