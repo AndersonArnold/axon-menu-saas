@@ -54,10 +54,7 @@ class OrderManager {
 
     const order = await store.createOrder(orderData);
 
-    // Se for mesa, marca como ocupada
-    if (type === 'dineIn' && tableId) {
-      await store.updateTableStatus(tableId, 'occupied', order.id);
-    }
+    // Removido: O painel Admin já infere o status com base no pedido ativo. Não precisa salvar no banco.
 
     // Registra venda no caixa
     try {
@@ -86,10 +83,7 @@ class OrderManager {
 
     await store.updateOrderStatus(orderId, newStatus);
 
-    // Se finalizado e era mesa, libera a mesa
-    if ((newStatus === 'completed' || newStatus === 'cancelled') && order.type === 'dineIn' && order.tableId) {
-      await store.updateTableStatus(order.tableId, 'available', null);
-    }
+    // Removido: O painel Admin já libera a mesa quando o status do pedido muda para completed/cancelled.
 
     return { ...order, status: newStatus };
   }
