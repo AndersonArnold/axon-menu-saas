@@ -897,9 +897,20 @@ async function renderCheckoutStep() {
             <label for="ck-phone">Telefone</label>
             <input type="tel" id="ck-phone" class="form-input" placeholder="(00) 00000-0000" value="${sanitizeHTML(checkoutState.customerPhone)}" required>
           </div>
-          <div class="input-group">
-            <label for="ck-address">Endereço</label>
-            <input type="text" id="ck-address" class="form-input" placeholder="Rua, Avenida..." value="${sanitizeHTML(checkoutState.address)}" required>
+          <div class="form-row">
+            <div class="input-group">
+              <label for="ck-city">Cidade</label>
+              <input type="text" id="ck-city" class="form-input" placeholder="Sua Cidade" value="${sanitizeHTML(checkoutState.city)}" required>
+            </div>
+            <div class="input-group">
+              <label for="ck-cep">CEP</label>
+              <input type="text" id="ck-cep" class="form-input" placeholder="Opcional" value="${sanitizeHTML(checkoutState.cep)}">
+            </div>
+          </div>
+          <div class="input-group" style="position: relative;">
+            <label for="ck-address">Endereço (Rua/Avenida)</label>
+            <input type="text" id="ck-address" class="form-input" placeholder="Digite o nome da rua..." value="${sanitizeHTML(checkoutState.address)}" required autocomplete="off">
+            <div id="address-suggestions" class="autocomplete-list" style="display:none;"></div>
           </div>
           <div class="form-row">
             <div class="input-group">
@@ -909,16 +920,6 @@ async function renderCheckoutStep() {
             <div class="input-group">
               <label for="ck-neighborhood">Bairro</label>
               <input type="text" id="ck-neighborhood" class="form-input" placeholder="Bairro" value="${sanitizeHTML(checkoutState.neighborhood)}" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="input-group">
-              <label for="ck-city">Cidade</label>
-              <input type="text" id="ck-city" class="form-input" placeholder="Sua Cidade" value="${sanitizeHTML(checkoutState.city)}" required>
-            </div>
-            <div class="input-group">
-              <label for="ck-cep">CEP</label>
-              <input type="text" id="ck-cep" class="form-input" placeholder="Opcional" value="${sanitizeHTML(checkoutState.cep)}">
             </div>
           </div>
           <div class="input-group">
@@ -1224,6 +1225,106 @@ function attachCheckoutEvents() {
       });
     });
   }
+
+  // Se for delivery, inicializar o autocomplete de endereço
+  if (step === 2 && checkoutState.orderType === 'delivery') {
+    setupAddressAutocomplete();
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Address Autocomplete (Photon API)
+   -------------------------------------------------------------------------- */
+function setupAddressAutocomplete() {
+  const addressInput = dom.checkoutModal.querySelector('#ck-address');
+  const cityInput = dom.checkoutModal.querySelector('#ck-city');
+  const suggestionsDiv = dom.checkoutModal.querySelector('#address-suggestions');
+  let debounceTimer;
+
+  if (!addressInput || !suggestionsDiv) return;
+
+  // Fecha as sugestões se clicar fora
+  document.addEventListener('click', (e) => {
+    if (e.target !== addressInput && e.target !== suggestionsDiv && !suggestionsDiv.contains(e.target)) {
+      suggestionsDiv.style.display = 'none';
+    }
+  });
+
+  addressInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const query = addressInput.value.trim();
+    const city = cityInput?.value?.trim() || '';
+    
+    if (query.length < 3) {
+      suggestionsDiv.style.display = 'none';
+      return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        const searchQuery = encodeURIComponent(`${query} ${city} brasil`);
+        const response = await fetch(`https://photon.komoot.io/api/?q=${searchQuery}&osm_tag=highway&limit=5`);
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        const features = data.features || [];
+        
+        if (features.length === 0) {
+          suggestionsDiv.style.display = 'none';
+          return;
+        }
+
+        suggestionsDiv.innerHTML = '';
+        features.forEach(f => {
+          const props = f.properties;
+          const streetName = props.name || props.street || '';
+          if (!streetName) return;
+          
+          const district = props.district || props.locality || '';
+          const postcode = props.postcode || '';
+          const cityName = props.city || city;
+          
+          const item = document.createElement('div');
+          item.className = 'autocomplete-item';
+          item.innerHTML = `<strong>${sanitizeHTML(streetName)}</strong>${district ? `<br><small>${sanitizeHTML(district)} - ${sanitizeHTML(cityName)}</small>` : ''}`;
+          
+          item.addEventListener('click', () => {
+            addressInput.value = streetName;
+            
+            const neighborhoodInput = dom.checkoutModal.querySelector('#ck-neighborhood');
+            if (neighborhoodInput && district) {
+              neighborhoodInput.value = district;
+              checkoutState.neighborhood = district;
+            }
+            
+            const cepInput = dom.checkoutModal.querySelector('#ck-cep');
+            if (cepInput && postcode) {
+              cepInput.value = postcode;
+              checkoutState.cep = postcode;
+            }
+            
+            if (cityInput && cityName) {
+              cityInput.value = cityName;
+              checkoutState.city = cityName;
+            }
+            
+            checkoutState.address = streetName;
+            suggestionsDiv.style.display = 'none';
+            
+            // Focar no número
+            const numberInput = dom.checkoutModal.querySelector('#ck-number');
+            if (numberInput) numberInput.focus();
+          });
+          
+          suggestionsDiv.appendChild(item);
+        });
+        
+        suggestionsDiv.style.display = features.length > 0 ? 'block' : 'none';
+      } catch (err) {
+        console.error('Erro no autocomplete:', err);
+      }
+    }, 400); // debounce de 400ms
+  });
 }
 
 
