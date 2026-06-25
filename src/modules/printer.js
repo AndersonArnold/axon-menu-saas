@@ -3,6 +3,7 @@
 // ============================================================
 
 import { formatCurrency, sanitizeHTML } from './utils.js';
+import qrcode from 'qrcode-generator';
 
 // ESC/POS Command Constants
 const ESC = 0x1B;
@@ -365,13 +366,22 @@ class Printer {
     let qrCodeHTML = '';
     if (data.customerAddress) {
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.customerAddress)}`;
-      const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(mapsUrl)}`;
-      qrCodeHTML = `
-        <div class="ticket-qr-code" style="text-align: center; margin: 12px 0;">
-          <p style="font-size: 11px; margin-bottom: 4px; font-weight: bold;">Escanear rota para entrega:</p>
-          <img src="${qrImageUrl}" alt="QR Code Rota" style="width: 120px; height: 120px; display: inline-block;" />
-        </div>
-      `;
+      
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(mapsUrl);
+        qr.make();
+        const qrImageUrl = qr.createDataURL(4);
+        
+        qrCodeHTML = `
+          <div class="ticket-qr-code" style="text-align: center; margin: 12px 0;">
+            <p style="font-size: 11px; margin-bottom: 4px; font-weight: bold;">Escanear rota para entrega:</p>
+            <img src="${qrImageUrl}" alt="QR Code Rota" style="width: 120px; height: 120px; display: inline-block;" />
+          </div>
+        `;
+      } catch (err) {
+        console.error('Erro ao gerar QR Code localmente', err);
+      }
     }
 
     const tableHTML = data.tableLabel
