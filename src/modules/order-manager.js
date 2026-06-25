@@ -200,6 +200,80 @@ class OrderManager {
   }
 
   /**
+   * Gera dados formatados para impressão do resumo da mesa
+   * @param {number|string} tableId
+   * @param {Array} tableOrders - Array com os pedidos daquela mesa
+   * @returns {Object}
+   */
+  generateTableTicketData(tableId, tableOrders) {
+    let grandTotal = 0;
+    const combinedItemsMap = new Map();
+
+    // Sum all items across all orders for this table
+    tableOrders.forEach(order => {
+      grandTotal += order.total || 0;
+      
+      (order.items || []).forEach(item => {
+        // Create a unique key for grouping identical items
+        const extrasKey = (item.extras || []).map(e => e.name).sort().join('|');
+        const obsKey = item.observation || '';
+        const uniqueKey = `${item.id}-${extrasKey}-${obsKey}`;
+
+        if (combinedItemsMap.has(uniqueKey)) {
+          const existing = combinedItemsMap.get(uniqueKey);
+          existing.quantity += item.quantity;
+          existing.totalPrice += item.totalPrice;
+        } else {
+          combinedItemsMap.set(uniqueKey, { ...item }); // Clone the item
+        }
+      });
+    });
+
+    const itemLines = Array.from(combinedItemsMap.values()).map((item) => {
+      const extras =
+        item.extras && item.extras.length
+          ? item.extras.map((e) => `  + ${e.name} (${formatCurrency(e.price)})`).join('\n')
+          : '';
+      const obs = item.observation ? `  Obs: ${item.observation}` : '';
+      return {
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: item.totalPrice,
+        extras,
+        observation: obs,
+        formattedLine: `${item.quantity}x ${item.name} ${formatCurrency(item.totalPrice)}`,
+      };
+    });
+
+    const now = new Date();
+
+    return {
+      orderNumber: `Mesa ${tableId}`, // Para o cabeçalho
+      date: formatDate(now),
+      time: formatTime(now),
+      dateTime: formatDateTime(now),
+      type: 'RESUMO DA MESA',
+      observation: `Comanda de ${tableOrders.length} pedido(s)`,
+      tableId: tableId,
+      tableLabel: `Mesa ${String(tableId).padStart(2, '0')}`,
+      customerName: tableOrders[0]?.customerInfo?.name || 'Cliente',
+      customerPhone: tableOrders[0]?.customerInfo?.phone || null,
+      customerAddress: null,
+      items: itemLines,
+      subtotal: grandTotal,
+      subtotalFormatted: formatCurrency(grandTotal),
+      deliveryFee: 0,
+      deliveryFeeFormatted: formatCurrency(0),
+      total: grandTotal,
+      totalFormatted: formatCurrency(grandTotal),
+      paymentMethod: null, // Ainda será pago
+      paymentMethodLabel: 'A Pagar',
+      status: 'Aberto',
+    };
+  }
+
+  /**
    * Label do método de pagamento
    * @param {string} method
    * @returns {string}

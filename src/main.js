@@ -969,7 +969,6 @@ async function renderCheckoutStep() {
             <button
               class="table-spot ${t.status !== 'available' ? 'occupied' : ''} ${checkoutState.tableId === t.id ? 'selected' : ''} table-${t.shape}"
               data-table-id="${t.id}"
-              ${t.status !== 'available' ? 'disabled' : ''}
               style="left: ${t.x}%; top: ${t.y}%"
               type="button"
               aria-label="Mesa ${t.label}, ${t.seats} lugares${t.status !== 'available' ? ', ocupada' : ''}"
@@ -1205,7 +1204,7 @@ function attachCheckoutEvents() {
     });
 
     // Table selection
-    dom.checkoutModal.querySelectorAll('.table-spot:not([disabled])').forEach(spot => {
+    dom.checkoutModal.querySelectorAll('.table-spot').forEach(spot => {
       spot.addEventListener('click', () => {
         checkoutState.tableId = parseInt(spot.dataset.tableId);
         dom.checkoutModal.querySelectorAll('.table-spot').forEach(s => s.classList.remove('selected'));

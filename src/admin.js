@@ -1403,9 +1403,10 @@ function openOrderDetailModal(order) {
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="flex-wrap: wrap;">
       <button class="btn btn-ghost" id="close-detail">Fechar</button>
       ${(order.type === 'dineIn' && order.status !== 'completed' && order.status !== 'cancelled') ? `<button class="btn btn-warning" id="complete-detail"><span class="material-icons-round">storefront</span> Encerrar Mesa</button>` : ''}
+      ${(order.type === 'dineIn') ? `<button class="btn btn-secondary" id="print-summary"><span class="material-icons-round">receipt_long</span> Resumo da Mesa</button>` : ''}
       <button class="btn btn-primary" id="print-detail">
         <span class="material-icons-round">print</span> Imprimir
       </button>
@@ -1419,18 +1420,68 @@ function openOrderDetailModal(order) {
   const completeBtn = overlay.querySelector('#complete-detail');
   if (completeBtn) {
     completeBtn.onclick = async () => {
-      await orderManager.updateStatus(order.id, 'completed');
-      showToast('Mesa encerrada!', 'success');
-      closeModal();
-      // Optional: Refresh the underlying page if it's visible
-      if (state.currentPage === 'tables') renderTablesPage($('#page-content'));
-      else if (state.currentPage === 'orders') renderOrdersPage($('#page-content'));
+      try {
+        if (order.tableId) {
+          const allOrders = await orderManager.getTodaysOrders();
+          const activeTableOrders = allOrders.filter(o => 
+            String(o.tableId) === String(order.tableId) && 
+            o.type === 'dineIn' && 
+            o.status !== 'completed' && 
+            o.status !== 'cancelled'
+          );
+          if (activeTableOrders.length > 0) {
+            await Promise.all(activeTableOrders.map(o => orderManager.updateStatus(o.id, 'completed')));
+          } else {
+            await orderManager.updateStatus(order.id, 'completed');
+          }
+        } else {
+          await orderManager.updateStatus(order.id, 'completed');
+        }
+        showToast('Mesa encerrada!', 'success');
+        closeModal();
+        if (state.currentPage === 'tables') renderTablesPage($('#page-content'));
+        else if (state.currentPage === 'orders') renderOrdersPage($('#page-content'));
+      } catch (err) {
+        showToast('Erro ao encerrar mesa', 'error');
+      }
+    };
+  }
+
+  const printSummaryBtn = overlay.querySelector('#print-summary');
+  if (printSummaryBtn) {
+    printSummaryBtn.onclick = async () => {
+      try {
+        if (!order.tableId) return;
+        const allOrders = await orderManager.getTodaysOrders();
+        const tableOrders = allOrders.filter(o => 
+          String(o.tableId) === String(order.tableId) && 
+          o.type === 'dineIn' && 
+          o.status !== 'cancelled'
+        ).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        
+        if (tableOrders.length === 0) {
+          showToast('Nenhum pedido ativo para esta mesa', 'warning');
+          return;
+        }
+
+        const ticketData = orderManager.generateTableTicketData(order.tableId, tableOrders);
+        if (printer.isConnected?.()) {
+          await printer.printTicket(ticketData);
+        } else {
+          const html = printer.formatTicketHTML(ticketData);
+          printer.printViaBrowser(html);
+        }
+        showToast('Resumo enviado para impressão!', 'info');
+      } catch (err) {
+        showToast('Erro ao imprimir resumo', 'error');
+        console.error(err);
+      }
     };
   }
 
   overlay.querySelector('#print-detail').onclick = async () => {
     try {
-      const ticketData = await orderManager.generateTicketData(order.id);
+      const ticketData = orderManager.generateTicketData(order); // CORREÇÃO: passando o objeto order inteiro
       if (printer.isConnected?.()) {
         await printer.printTicket(ticketData);
       } else {
@@ -1440,6 +1491,7 @@ function openOrderDetailModal(order) {
       showToast('Impressão enviada!', 'info');
     } catch (err) {
       showToast('Erro ao imprimir', 'error');
+      console.error(err);
     }
   };
 }
