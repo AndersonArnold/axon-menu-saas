@@ -4,6 +4,7 @@
 
 import { store } from './store.js';
 import { formatCurrency } from './utils.js';
+import configManager from './config-manager.js';
 
 class Cashier {
   constructor() {}
@@ -40,11 +41,23 @@ class Cashier {
 
     // Recalcula vendas por método
     const sales = { pix: 0, credit: 0, debit: 0, cash: 0 };
+    const methods = configManager.getPaymentMethods();
+
     for (const order of validOrders) {
-      const method = order.paymentMethod;
-      if (sales[method] !== undefined) {
-        sales[method] += order.total || 0;
+      const methodId = order.paymentMethod;
+      const amount = order.total || 0;
+      if (!methodId) continue;
+      
+      const methodObj = methods.find((m) => m.id === methodId);
+      const label = methodObj ? methodObj.label.toLowerCase() : String(methodId).toLowerCase();
+
+      if (label.includes('pix')) sales.pix += amount;
+      else if (label.includes('cartão') || label.includes('cartao') || label.includes('credit') || label.includes('debit')) {
+        if (label.includes('débito') || label.includes('debito') || label.includes('debit')) sales.debit += amount;
+        else sales.credit += amount;
       }
+      else if (label.includes('dinheiro') || label.includes('cash')) sales.cash += amount;
+      else sales.pix += amount; // fallback para outros
     }
 
     // Atualiza vendas no registro antes de fechar
@@ -106,14 +119,25 @@ class Cashier {
     // Calcula vendas por método a partir dos pedidos
     const salesByMethod = { pix: 0, credit: 0, debit: 0, cash: 0 };
     let totalSales = 0;
+    const methods = configManager.getPaymentMethods();
 
     for (const order of validOrders) {
-      const method = order.paymentMethod;
       const amount = order.total || 0;
       totalSales += amount;
-      if (salesByMethod[method] !== undefined) {
-        salesByMethod[method] += amount;
+      
+      const methodId = order.paymentMethod;
+      if (!methodId) continue;
+
+      const methodObj = methods.find((m) => m.id === methodId);
+      const label = methodObj ? methodObj.label.toLowerCase() : String(methodId).toLowerCase();
+
+      if (label.includes('pix')) salesByMethod.pix += amount;
+      else if (label.includes('cartão') || label.includes('cartao') || label.includes('credit') || label.includes('debit')) {
+        if (label.includes('débito') || label.includes('debito') || label.includes('debit')) salesByMethod.debit += amount;
+        else salesByMethod.credit += amount;
       }
+      else if (label.includes('dinheiro') || label.includes('cash')) salesByMethod.cash += amount;
+      else salesByMethod.pix += amount; // fallback para outros
     }
 
     const orderCount = validOrders.length;
