@@ -1334,13 +1334,52 @@ function bindOrderActions(container) {
   });
 }
 
-function openOrderDetailModal(order) {
+async function openOrderDetailModal(order) {
   const statusLabels = { pending: 'Pendente', preparing: 'Em Preparo', ready: 'Pronto', delivered: 'Entregue', completed: 'Encerrado', cancelled: 'Cancelado' };
   const typeLabels = { dineIn: 'No Local', takeaway: 'Retirada', delivery: 'Delivery' };
   const paymentLabels = { pix: 'PIX', credit: 'Cartão de Crédito', debit: 'Cartão de Débito', cash: 'Dinheiro' };
   const time = order.createdAt ? formatDateTime(new Date(order.createdAt)) : '--';
 
-  const itemsHTML = (order.items || []).map(item => {
+  let displayItems = order.items || [];
+  let displayTotal = order.total || 0;
+  let modalTitle = `Pedido #${order.orderNumber || order.id?.toString().slice(-4) || '----'}`;
+  let tableOrdersCount = 1;
+
+  if (order.type === 'dineIn' && order.tableId) {
+    const allOrders = await orderManager.getTodaysOrders();
+    const tableOrders = allOrders.filter(o => 
+      String(o.tableId) === String(order.tableId) && 
+      o.type === 'dineIn' && 
+      o.status !== 'cancelled'
+    );
+    
+    if (tableOrders.length > 1) {
+      tableOrdersCount = tableOrders.length;
+      modalTitle = `Comanda - Mesa ${order.tableId}`;
+      let grandTotal = 0;
+      const combinedItemsMap = new Map();
+      
+      tableOrders.forEach(o => {
+        grandTotal += o.total || 0;
+        (o.items || []).forEach(item => {
+          const extrasKey = (item.extras || []).map(e => e.name).sort().join('|');
+          const obsKey = item.observation || '';
+          const uniqueKey = `${item.id}-${extrasKey}-${obsKey}`;
+          if (combinedItemsMap.has(uniqueKey)) {
+            const existing = combinedItemsMap.get(uniqueKey);
+            existing.quantity += item.quantity;
+            existing.totalPrice += item.totalPrice;
+          } else {
+            combinedItemsMap.set(uniqueKey, { ...item }); // Clone
+          }
+        });
+      });
+      displayItems = Array.from(combinedItemsMap.values());
+      displayTotal = grandTotal;
+    }
+  }
+
+  const itemsHTML = displayItems.map(item => {
     const extrasHTML = (item.extras || []).map(e => `<span class="order-detail-extra">+ ${e.name} (${formatCurrency(e.price)})</span>`).join('');
     return `
       <div class="order-detail-item">
@@ -1358,7 +1397,7 @@ function openOrderDetailModal(order) {
 
   openModal(`
     <div class="modal-header">
-      <h3>Pedido #${order.orderNumber || order.id?.toString().slice(-4) || '----'}</h3>
+      <h3>${modalTitle}</h3>
       <button class="btn-icon modal-close-btn" id="close-modal">
         <span class="material-icons-round">close</span>
       </button>
@@ -1383,7 +1422,7 @@ function openOrderDetailModal(order) {
         </div>
         <div class="order-detail-row">
           <span class="material-icons-round">info</span>
-          <span>Status: <strong>${statusLabels[order.status] || order.status}</strong></span>
+          <span>Status: <strong>${tableOrdersCount > 1 ? `Múltiplos (${tableOrdersCount} pedidos)` : (statusLabels[order.status] || order.status)}</strong></span>
         </div>
       </div>
 
@@ -1391,7 +1430,7 @@ function openOrderDetailModal(order) {
       ${order.notes ? `<div class="order-detail-notes"><span class="material-icons-round">notes</span> ${order.notes}</div>` : ''}
 
       <div class="order-detail-items">
-        <h4>Itens do Pedido</h4>
+        <h4>Itens da Mesa</h4>
         ${itemsHTML}
       </div>
 
@@ -1399,7 +1438,7 @@ function openOrderDetailModal(order) {
         ${order.deliveryFee ? `<div class="order-detail-total-row"><span>Taxa de entrega</span><span>${formatCurrency(order.deliveryFee)}</span></div>` : ''}
         <div class="order-detail-total-row total-final">
           <span>Total</span>
-          <span>${formatCurrency(order.total || 0)}</span>
+          <span>${formatCurrency(displayTotal)}</span>
         </div>
       </div>
     </div>
