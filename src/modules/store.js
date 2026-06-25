@@ -259,6 +259,10 @@ class AppStore {
     return registers[registers.length - 1];
   }
 
+  async updateCashRegister(id, updates) {
+    await updateDoc(this._doc('cashRegister', id), updates);
+  }
+
   async addSaleToCashRegister(paymentMethod, amount) {
     const register = await this.getCurrentCashRegister();
     if (!register) throw new Error('Nenhum caixa aberto');

@@ -61,7 +61,7 @@ class Cashier {
     }
 
     // Atualiza vendas no registro antes de fechar
-    await store.db.cashRegister.update(current.id, {
+    await store.updateCashRegister(current.id, {
       sales,
       totalOrders: validOrders.length,
     });
