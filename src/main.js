@@ -759,6 +759,9 @@ function openCheckout() {
     customerPhone: '',
     address: '',
     addressNumber: '',
+    neighborhood: '',
+    city: '',
+    cep: '',
     reference: '',
     deliveryZone: null,
     tableId: null,
@@ -904,9 +907,23 @@ async function renderCheckoutStep() {
               <input type="text" id="ck-number" class="form-input" placeholder="Nº" value="${sanitizeHTML(checkoutState.addressNumber)}" required>
             </div>
             <div class="input-group">
-              <label for="ck-reference">Ponto de Referência</label>
-              <input type="text" id="ck-reference" class="form-input" placeholder="Opcional" value="${sanitizeHTML(checkoutState.reference)}">
+              <label for="ck-neighborhood">Bairro</label>
+              <input type="text" id="ck-neighborhood" class="form-input" placeholder="Bairro" value="${sanitizeHTML(checkoutState.neighborhood)}" required>
             </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label for="ck-city">Cidade</label>
+              <input type="text" id="ck-city" class="form-input" placeholder="Sua Cidade" value="${sanitizeHTML(checkoutState.city)}" required>
+            </div>
+            <div class="input-group">
+              <label for="ck-cep">CEP</label>
+              <input type="text" id="ck-cep" class="form-input" placeholder="Opcional" value="${sanitizeHTML(checkoutState.cep)}">
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="ck-reference">Ponto de Referência</label>
+            <input type="text" id="ck-reference" class="form-input" placeholder="Opcional" value="${sanitizeHTML(checkoutState.reference)}">
           </div>
           <div class="input-group">
             <label for="ck-zone">Zona de Entrega</label>
@@ -1231,12 +1248,17 @@ function validateCheckoutStep() {
       checkoutState.customerPhone = dom.checkoutModal.querySelector('#ck-phone')?.value?.trim() || '';
       checkoutState.address       = dom.checkoutModal.querySelector('#ck-address')?.value?.trim() || '';
       checkoutState.addressNumber = dom.checkoutModal.querySelector('#ck-number')?.value?.trim() || '';
+      checkoutState.neighborhood  = dom.checkoutModal.querySelector('#ck-neighborhood')?.value?.trim() || '';
+      checkoutState.city          = dom.checkoutModal.querySelector('#ck-city')?.value?.trim() || '';
+      checkoutState.cep           = dom.checkoutModal.querySelector('#ck-cep')?.value?.trim() || '';
       checkoutState.reference     = dom.checkoutModal.querySelector('#ck-reference')?.value?.trim() || '';
 
       if (!checkoutState.customerName) { showToast('Informe seu nome', 'warning'); return false; }
       if (!checkoutState.customerPhone) { showToast('Informe seu telefone', 'warning'); return false; }
       if (!checkoutState.address) { showToast('Informe seu endereço', 'warning'); return false; }
       if (!checkoutState.addressNumber) { showToast('Informe o número', 'warning'); return false; }
+      if (!checkoutState.neighborhood) { showToast('Informe o bairro', 'warning'); return false; }
+      if (!checkoutState.city) { showToast('Informe a cidade', 'warning'); return false; }
       if (!checkoutState.deliveryZone) { showToast('Selecione a zona de entrega', 'warning'); return false; }
 
       // Check minimum order
@@ -1307,12 +1329,15 @@ async function confirmOrder() {
         name: checkoutState.customerName,
         phone: checkoutState.customerPhone,
         address: checkoutState.orderType === 'delivery'
-          ? `${checkoutState.address}, ${checkoutState.addressNumber}${checkoutState.reference ? ` (${checkoutState.reference})` : ''}`
+          ? `${checkoutState.address}, ${checkoutState.addressNumber} - ${checkoutState.neighborhood}, ${checkoutState.city}${checkoutState.cep ? ` - CEP: ${checkoutState.cep}` : ''}${checkoutState.reference ? ` (${checkoutState.reference})` : ''}`
           : null,
       },
       delivery: checkoutState.orderType === 'delivery' ? {
         address: checkoutState.address,
         number: checkoutState.addressNumber,
+        neighborhood: checkoutState.neighborhood,
+        city: checkoutState.city,
+        cep: checkoutState.cep,
         reference: checkoutState.reference,
         zone: checkoutState.deliveryZone,
         fee: deliveryFee,

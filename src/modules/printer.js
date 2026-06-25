@@ -362,6 +362,18 @@ class Printer {
         </div>`
       : '';
 
+    let qrCodeHTML = '';
+    if (data.customerAddress) {
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.customerAddress)}`;
+      const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(mapsUrl)}`;
+      qrCodeHTML = `
+        <div class="ticket-qr-code" style="text-align: center; margin: 12px 0;">
+          <p style="font-size: 11px; margin-bottom: 4px; font-weight: bold;">Escanear rota para entrega:</p>
+          <img src="${qrImageUrl}" alt="QR Code Rota" style="width: 120px; height: 120px; display: inline-block;" />
+        </div>
+      `;
+    }
+
     const tableHTML = data.tableLabel
       ? `<div class="ticket-table">${sanitizeHTML(data.tableLabel)}</div>`
       : '';
@@ -493,6 +505,7 @@ class Printer {
         <div class="ticket-meta">${sanitizeHTML(data.type)} • ${sanitizeHTML(data.dateTime)}</div>
         ${tableHTML}
         ${customerHTML}
+        ${qrCodeHTML}
 
         <hr class="ticket-divider">
 
