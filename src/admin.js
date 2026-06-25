@@ -2578,8 +2578,11 @@ async function renderSettingsPage(container) {
   // === Printer ===
   container.querySelector('#connect-printer-btn').onclick = async () => {
     try {
-      await printer.connectBluetooth();
-      container.querySelector('#printer-status-text').textContent = 'Conectada';
+      const result = await printer.connectBluetooth();
+      if (!result || !result.connected) {
+        throw new Error(result?.error || 'Não foi possível conectar ou operação cancelada');
+      }
+      container.querySelector('#printer-status-text').textContent = `Conectada (${result.deviceName})`;
       container.querySelector('#disconnect-printer-btn').disabled = false;
       showToast('Impressora conectada!', 'success');
     } catch (err) {
@@ -2589,7 +2592,7 @@ async function renderSettingsPage(container) {
 
   container.querySelector('#disconnect-printer-btn').onclick = async () => {
     try {
-      await printer.disconnect?.();
+      await printer.disconnectBluetooth?.();
       container.querySelector('#printer-status-text').textContent = 'Desconectada';
       container.querySelector('#disconnect-printer-btn').disabled = true;
       showToast('Impressora desconectada', 'info');

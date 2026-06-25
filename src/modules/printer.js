@@ -49,7 +49,7 @@ class Printer {
   async connectBluetooth() {
     try {
       if (!navigator.bluetooth) {
-        throw new Error('Web Bluetooth não suportado neste navegador.');
+        throw new Error('Web Bluetooth não suportado. Verifique se está usando Chrome e se o site está em HTTPS.');
       }
 
       // Solicita dispositivo ao usuário

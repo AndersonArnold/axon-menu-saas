@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
+  plugins: [
+    basicSsl()
+  ],
   root: '.',
   build: {
     rollupOptions: {
@@ -15,5 +19,6 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    host: true,
   },
 });
